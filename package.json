@@ -1,21 +1,21 @@
 {
-   "name": "ttl-typegraphql",
-   "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
-   "devDependencies": {
-      "ts-node": "3.3.0",
-      "@types/node": "^8.0.29",
-      "typescript": "3.3.3333"
-   },
-   "dependencies": {
-      "class-validator": "^0.12.2",
-      "graphql": "^15.0.0",
-      "pg": "^7.3.0",
-      "reflect-metadata": "^0.1.10",
-      "type-graphql": "^1.0.0-rc.2",
-      "typeorm": "0.2.24"
-   },
-   "scripts": {
-      "start": "ts-node src/index.ts"
-   }
+    "name": "ttl-typegraphql",
+    "version": "0.0.1",
+    "description": "Awesome project developed with TypeORM.",
+    "devDependencies": {
+        "ts-node": "8.10.1",
+        "@types/node": "^14.0.5",
+        "typescript": "3.9.3"
+    },
+    "dependencies": {
+        "class-validator": "^0.12.2",
+        "graphql": "^15.0.0",
+        "pg": "^8.2.1",
+        "reflect-metadata": "^0.1.13",
+        "type-graphql": "^1.0.0-rc.2",
+        "typeorm": "0.2.25"
+    },
+    "scripts": {
+        "start": "ts-node src/index.ts"
+    }
 }

@@ -16,11 +16,11 @@ export class Match extends BaseEntity {
     id: number;
 
     @Field()
-    @Column()
+    @Column({ default: false })
     isFinished: boolean;
 
     @Field()
-    @Column()
+    @Column({ default: false })
     isWalkover: boolean;
 
     @Field(() => [Player])

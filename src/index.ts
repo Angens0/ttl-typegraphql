@@ -4,6 +4,7 @@ import { createConnection } from "typeorm";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/UserResolver";
 import { PlayerResolver } from "./resolvers/PlayerResolver";
+import { MatchResolver } from "./resolvers/MatchResolver";
 
 const PORT = process.env.PORT || 7000;
 
@@ -11,7 +12,7 @@ const main = async () => {
     await createConnection();
 
     const schema = await buildSchema({
-        resolvers: [UserResolver, PlayerResolver],
+        resolvers: [UserResolver, PlayerResolver, MatchResolver],
     });
 
     const server = new ApolloServer({

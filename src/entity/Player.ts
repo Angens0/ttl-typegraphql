@@ -4,6 +4,7 @@ import {
     Column,
     BaseEntity,
     ManyToMany,
+    JoinTable,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import { Match } from "./Match";
@@ -29,5 +30,6 @@ export class Player extends BaseEntity {
 
     @Field(() => [Match])
     @ManyToMany(() => Match, match => match.players)
+    @JoinTable()
     matches: Match[];
 }

@@ -3,8 +3,9 @@
     "version": "0.0.1",
     "description": "Awesome project developed with TypeORM.",
     "devDependencies": {
-        "ts-node": "8.10.1",
         "@types/node": "^14.0.5",
+        "nodemon": "^2.0.4",
+        "ts-node": "8.10.1",
         "typescript": "3.9.3"
     },
     "dependencies": {
@@ -17,6 +18,7 @@
         "typeorm": "0.2.25"
     },
     "scripts": {
-        "start": "ts-node src/index.ts"
+        "start": "ts-node src/index.ts",
+        "dev": "nodemon --exec ts-node src/index.ts"
     }
 }

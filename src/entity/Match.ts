@@ -4,9 +4,11 @@ import {
     Column,
     ManyToMany,
     BaseEntity,
+    OneToMany,
 } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 import { Player } from "./Player";
+import { Game } from "./Game";
 
 @ObjectType()
 @Entity()
@@ -26,4 +28,8 @@ export class Match extends BaseEntity {
     @Field(() => [Player])
     @ManyToMany(() => Player, player => player.matches)
     players: Player[];
+
+    @Field(() => [Game])
+    @OneToMany(() => Game, game => game.match)
+    games: Game[];
 }

@@ -1,9 +1,22 @@
-import { ID, Mutation, Arg, Resolver } from "type-graphql";
+import {
+    ID,
+    Mutation,
+    Arg,
+    Resolver,
+    Query,
+    FieldResolver,
+    Root,
+} from "type-graphql";
 import { Match } from "../entity/Match";
 import { Player } from "../entity/Player";
 
-@Resolver()
+@Resolver(() => Match)
 export class MatchResolver {
+    @Query(() => [Match])
+    async matches(): Promise<Match[]> {
+        return await Match.find();
+    }
+
     @Mutation(() => Match)
     async createMatch(@Arg("players", () => [ID]) data: string[]) {
         if (data.length !== 2) {
@@ -25,5 +38,14 @@ export class MatchResolver {
         }).save();
 
         return match;
+    }
+
+    @FieldResolver()
+    async players(@Root() { id }: Match): Promise<Player[]> {
+        return (
+            await Match.findOne(id, {
+                relations: ["players"],
+            })
+        ).players;
     }
 }

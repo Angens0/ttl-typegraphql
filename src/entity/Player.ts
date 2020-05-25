@@ -5,9 +5,11 @@ import {
     BaseEntity,
     ManyToMany,
     JoinTable,
+    OneToMany,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import { Match } from "./Match";
+import { Point } from "./Point";
 
 @ObjectType()
 @Entity()
@@ -32,4 +34,12 @@ export class Player extends BaseEntity {
     @ManyToMany(() => Match, match => match.players)
     @JoinTable()
     matches: Match[];
+
+    @Field(() => [Point])
+    @OneToMany(() => Point, point => point.winner)
+    wonPoints: Point[];
+
+    @Field(() => [Point])
+    @OneToMany(() => Point, point => point.loser)
+    lostPoints: Point[];
 }

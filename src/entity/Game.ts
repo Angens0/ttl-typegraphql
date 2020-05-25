@@ -1,10 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    ManyToOne,
+    Column,
+    BaseEntity,
+    OneToMany,
+    CreateDateColumn,
+    UpdateDateColumn,
+} from "typeorm";
 import { Field, ObjectType, ID } from "type-graphql";
 import { Match } from "./Match";
+import { Point } from "./Point";
 
 @ObjectType()
 @Entity()
-export class Game {
+export class Game extends BaseEntity {
     @Field(() => ID)
     @PrimaryGeneratedColumn()
     id: number;
@@ -16,4 +26,16 @@ export class Game {
     @Field(() => Match)
     @ManyToOne(() => Match, match => match.games)
     match: Match;
+
+    @Field(() => [Point])
+    @OneToMany(() => Point, point => point.game)
+    points: Point[];
+
+    @Field()
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @Field()
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

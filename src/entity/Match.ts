@@ -9,6 +9,7 @@ import {
 import { ObjectType, Field, ID } from "type-graphql";
 import { Player } from "./Player";
 import { Game } from "./Game";
+import { Point } from "./Point";
 
 @ObjectType()
 @Entity()

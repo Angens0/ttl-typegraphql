@@ -19,15 +19,15 @@ export class Point extends BaseEntity {
 
     @Field(() => Game)
     @ManyToOne(() => Game, game => game.points)
-    game: Game;
+    game: Promise<Game>;
 
     @Field(() => Player)
     @ManyToOne(() => Player, player => player.wonPoints)
-    winner: Player;
+    winner: Promise<Player>;
 
     @Field(() => Player)
     @ManyToOne(() => Player, player => player.lostPoints)
-    loser: Player;
+    loser: Promise<Player>;
 
     @Field()
     @CreateDateColumn()

@@ -24,26 +24,36 @@ export class PointResolver {
         @Arg("loser", () => ID) loserId: number,
         @Arg("game", () => ID) gameId: number
     ): Promise<Point> {
-        return await Point.create({
-            winner: { id: winnerId },
-            loser: { id: loserId },
-            game: { id: gameId },
-        }).save();
+        const winner = await Player.findOne(winnerId);
+        const loser = await Player.findOne(loserId);
+        if (!winner && !loser) {
+            throw new Error("Player not found");
+        }
+        const game = await Game.findOne(gameId);
+        if (!game) {
+            throw new Error("Game not found");
+        }
+
+        const point = new Point();
+        point.winner = Promise.resolve(winner);
+        point.loser = Promise.resolve(loser);
+        point.game = Promise.resolve(game);
+
+        return await point.save();
     }
 
     @FieldResolver(() => Player)
     async winner(@Root() parent: Point): Promise<Player> {
-        return (await Point.findOne(parent.id, { relations: ["winner"] }))
-            .winner;
+        return await parent.winner;
     }
 
     @FieldResolver(() => Player)
     async loser(@Root() parent: Point): Promise<Player> {
-        return (await Point.findOne(parent.id, { relations: ["loser"] })).loser;
+        return await parent.loser;
     }
 
     @FieldResolver(() => Game)
     async game(@Root() parent: Point): Promise<Game> {
-        return (await Point.findOne(parent.id, { relations: ["game"] })).game;
+        return await parent.game;
     }
 }

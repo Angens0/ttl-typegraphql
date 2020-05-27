@@ -20,17 +20,24 @@ export class GameResolver {
 
     @Mutation(() => Game)
     async createGame(@Arg("match", () => ID) matchId: number): Promise<Game> {
-        return await Game.create({ match: { id: matchId } }).save();
+        const match = await Match.findOne(matchId);
+        if (!match) {
+            throw new Error("Match not found");
+        }
+
+        const game = new Game();
+        game.match = Promise.resolve(match);
+
+        return await game.save();
     }
 
     @FieldResolver(() => Match)
     async match(@Root() parent: Game): Promise<Match> {
-        return (await Game.findOne(parent.id, { relations: ["match"] })).match;
+        return await parent.match;
     }
 
     @FieldResolver(() => [Point])
     async points(@Root() parent: Game): Promise<Point[]> {
-        return (await Game.findOne(parent.id, { relations: ["points"] }))
-            .points;
+        return await parent.points;
     }
 }

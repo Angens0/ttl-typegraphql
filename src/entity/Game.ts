@@ -25,11 +25,11 @@ export class Game extends BaseEntity {
 
     @Field(() => Match)
     @ManyToOne(() => Match, match => match.games)
-    match: Match;
+    match: Promise<Match>;
 
     @Field(() => [Point])
     @OneToMany(() => Point, point => point.game)
-    points: Point[];
+    points: Promise<Point[]>;
 
     @Field()
     @CreateDateColumn()

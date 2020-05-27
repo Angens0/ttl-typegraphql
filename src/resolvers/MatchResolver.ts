@@ -34,18 +34,14 @@ export class MatchResolver {
         }
 
         const match = await Match.create({
-            players,
+            players: Promise.resolve(players),
         }).save();
 
         return match;
     }
 
     @FieldResolver()
-    async players(@Root() { id }: Match): Promise<Player[]> {
-        return (
-            await Match.findOne(id, {
-                relations: ["players"],
-            })
-        ).players;
+    async players(@Root() parent: Match): Promise<Player[]> {
+        return await parent.players;
     }
 }

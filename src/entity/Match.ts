@@ -9,7 +9,6 @@ import {
 import { ObjectType, Field, ID } from "type-graphql";
 import { Player } from "./Player";
 import { Game } from "./Game";
-import { Point } from "./Point";
 
 @ObjectType()
 @Entity()
@@ -28,9 +27,9 @@ export class Match extends BaseEntity {
 
     @Field(() => [Player])
     @ManyToMany(() => Player, player => player.matches)
-    players: Player[];
+    players: Promise<Player[]>;
 
     @Field(() => [Game])
     @OneToMany(() => Game, game => game.match)
-    games: Game[];
+    games: Promise<Game[]>;
 }

@@ -33,13 +33,13 @@ export class Player extends BaseEntity {
     @Field(() => [Match])
     @ManyToMany(() => Match, match => match.players)
     @JoinTable()
-    matches: Match[];
+    matches: Promise<Match[]>;
 
     @Field(() => [Point])
     @OneToMany(() => Point, point => point.winner)
-    wonPoints: Point[];
+    wonPoints: Promise<Point[]>;
 
     @Field(() => [Point])
     @OneToMany(() => Point, point => point.loser)
-    lostPoints: Point[];
+    lostPoints: Promise<Point[]>;
 }

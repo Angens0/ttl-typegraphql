@@ -42,11 +42,7 @@ export class PlayerResolver {
     }
 
     @FieldResolver()
-    async matches(@Root() { id }: Player): Promise<Match[]> {
-        return (
-            await Player.findOne(id, {
-                relations: ["matches"],
-            })
-        ).matches;
+    async matches(@Root() parent: Player): Promise<Match[]> {
+        return await parent.matches;
     }
 }

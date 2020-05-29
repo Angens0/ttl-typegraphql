@@ -21,6 +21,10 @@ export class Match extends BaseEntity {
 
     @Field()
     @Column({ default: false })
+    isStarted: boolean;
+
+    @Field()
+    @Column({ default: false })
     isFinished: boolean;
 
     @Field()
@@ -48,5 +52,13 @@ export class Match extends BaseEntity {
         match.tournament = Promise.resolve(tournament);
 
         return await match.save();
+    }
+
+    async start(): Promise<Match> {
+        this.isStarted = true;
+        await Game.createGame(this);
+        await this.save();
+
+        return this;
     }
 }

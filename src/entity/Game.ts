@@ -38,4 +38,10 @@ export class Game extends BaseEntity {
     @Field()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    static async createGame(match: Match): Promise<Game> {
+        const game = await Game.create({}).save();
+        game.match = Promise.resolve(match);
+        return await game.save();
+    }
 }

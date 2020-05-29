@@ -18,6 +18,18 @@ export class MatchResolver {
     }
 
     @Mutation(() => Match)
+    async startMatch(
+        @Arg("matchId", () => ID) matchId: number
+    ): Promise<Match> {
+        const match = await Match.findOne(matchId);
+        if (!match) {
+            throw new Error("Match not found");
+        }
+
+        return await match.start();
+    }
+
+    @Mutation(() => Match)
     async createMatch(@Arg("players", () => [ID]) data: string[]) {
         if (data.length !== 2) {
             throw new Error("2 Players are needed to create match");

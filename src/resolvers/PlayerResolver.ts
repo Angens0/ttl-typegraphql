@@ -11,6 +11,8 @@ import {
 } from "type-graphql";
 import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
+import { Point } from "../entity/Point";
+import { Game } from "../entity/Game";
 
 @InputType()
 class CreatePlayerInput {
@@ -44,5 +46,35 @@ export class PlayerResolver {
     @FieldResolver()
     async matches(@Root() parent: Player): Promise<Match[]> {
         return await parent.matches;
+    }
+
+    @FieldResolver()
+    async wonPoints(@Root() parent: Player): Promise<Point[]> {
+        return await parent.wonPoints;
+    }
+
+    @FieldResolver()
+    async lostPoints(@Root() parent: Player): Promise<Point[]> {
+        return await parent.lostPoints;
+    }
+
+    @FieldResolver()
+    async wonGames(@Root() parent: Player): Promise<Game[]> {
+        return await parent.wonGames;
+    }
+
+    @FieldResolver()
+    async lostGames(@Root() parent: Player): Promise<Game[]> {
+        return await parent.lostGames;
+    }
+
+    @FieldResolver()
+    async wonMatches(@Root() parent: Player): Promise<Match[]> {
+        return await parent.wonMatches;
+    }
+
+    @FieldResolver()
+    async lostMatches(@Root() parent: Player): Promise<Match[]> {
+        return await parent.lostMatches;
     }
 }

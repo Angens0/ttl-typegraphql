@@ -11,6 +11,7 @@ import {
 import { Field, ObjectType, ID } from "type-graphql";
 import { Match } from "./Match";
 import { Point } from "./Point";
+import { Player } from "./Player";
 
 @ObjectType()
 @Entity()
@@ -22,6 +23,14 @@ export class Game extends BaseEntity {
     @Field()
     @Column({ default: false })
     isFinished: boolean;
+
+    @Field(() => Player, { nullable: true })
+    @ManyToOne(() => Player)
+    winner: Promise<Player>;
+
+    @Field(() => Player, { nullable: true })
+    @ManyToOne(() => Player)
+    loser: Promise<Player>;
 
     @Field(() => Match)
     @ManyToOne(() => Match, match => match.games)
@@ -43,6 +52,13 @@ export class Game extends BaseEntity {
         const game = await Game.create({}).save();
         game.match = Promise.resolve(match);
         return await game.save();
+    }
+
+    async finish(winner: Player, loser: Player): Promise<Game> {
+        this.isFinished = true;
+        this.winner = Promise.resolve(winner);
+        this.loser = Promise.resolve(loser);
+        return await this.save();
     }
 
     async getScore(): Promise<{ [playerId: string]: number }> {

@@ -13,6 +13,10 @@ import { Game } from "./Game";
 import { Tournament } from "./Tournament";
 import { Point } from "./Point";
 
+const MIN_POINTS_WIN_GAME = 11;
+const MIN_POINTS_DIFF_WIN_GAME = 2;
+const MATCH_BEST_OF = 5;
+
 @ObjectType()
 @Entity()
 export class Match extends BaseEntity {
@@ -31,6 +35,14 @@ export class Match extends BaseEntity {
     @Field()
     @Column({ default: false })
     isWalkover: boolean;
+
+    @Field(() => Player, { nullable: true })
+    @ManyToOne(() => Player)
+    winner: Promise<Player>;
+
+    @Field(() => Player, { nullable: true })
+    @ManyToOne(() => Player)
+    loser: Promise<Player>;
 
     @Field(() => [Tournament])
     @ManyToOne(() => Tournament, tournament => tournament.matches)
@@ -63,6 +75,19 @@ export class Match extends BaseEntity {
         return this;
     }
 
+    async finish(
+        winner: Player,
+        loser: Player,
+        isWalkover = false
+    ): Promise<Match> {
+        this.isFinished = true;
+        this.isWalkover = isWalkover;
+        this.winner = Promise.resolve(winner);
+        this.loser = Promise.resolve(loser);
+
+        return await this.save();
+    }
+
     async addPoint(winner: Player): Promise<Point> {
         if (!this.isStarted) {
             throw new Error("The Match is not started");
@@ -73,14 +98,56 @@ export class Match extends BaseEntity {
         }
 
         const game = await this.getActiveGame();
-        const loser = (await this.players).find(
-            player => player.id !== winner.id
-        );
+        const players = await this.players;
+        const loser = players.find(player => player.id !== winner.id);
+        const point = await Point.createPoint(winner, loser, game);
 
         const gameScore = await game.getScore();
-        console.log(gameScore);
+        const winnerScore = gameScore[winner.id];
+        const loserScore = gameScore[loser.id];
 
-        return await Point.createPoint(winner, loser, game);
+        if (
+            winnerScore >= MIN_POINTS_WIN_GAME &&
+            winnerScore - loserScore >= MIN_POINTS_DIFF_WIN_GAME
+        ) {
+            await game.finish(winner, loser);
+
+            const matchScore = await this.matchScore();
+            const gamesToWinMatch = Math.ceil(MATCH_BEST_OF / 2);
+            if (matchScore[winner.id] >= gamesToWinMatch) {
+                this.finish(winner, loser);
+                console.log("MATCH FINISHED!");
+            } else {
+                await Game.createGame(this);
+                console.log("CREATING NEW GAME");
+            }
+        }
+
+        console.log("Game score: ", gameScore);
+        console.log("Match score: ", await this.matchScore());
+
+        return point;
+    }
+
+    async matchScore(): Promise<{ [playerId: string]: number }> {
+        const players = await this.players;
+        const games = await this.games;
+        const finishedGames = games.filter(game => game.isFinished);
+
+        const score = {};
+        score[players[0].id] = 0;
+        score[players[1].id] = 0;
+
+        for (let game of finishedGames) {
+            const winner = await game.winner;
+            if (!winner) {
+                throw new Error("Game winner not found");
+            }
+
+            ++score[winner.id];
+        }
+
+        return score;
     }
 
     async getActiveGame(): Promise<Game> {

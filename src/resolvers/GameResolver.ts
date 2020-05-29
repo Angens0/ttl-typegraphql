@@ -10,6 +10,7 @@ import {
 import { Game } from "../entity/Game";
 import { Match } from "../entity/Match";
 import { Point } from "../entity/Point";
+import { Player } from "../entity/Player";
 
 @Resolver(() => Game)
 export class GameResolver {
@@ -39,5 +40,15 @@ export class GameResolver {
     @FieldResolver(() => [Point])
     async points(@Root() parent: Game): Promise<Point[]> {
         return await parent.points;
+    }
+
+    @FieldResolver({ nullable: true })
+    async winner(@Root() parent: Game): Promise<Player> {
+        return await parent.winner;
+    }
+
+    @FieldResolver({ nullable: true })
+    async loser(@Root() parent: Game): Promise<Player> {
+        return await parent.loser;
     }
 }

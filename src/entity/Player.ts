@@ -11,6 +11,7 @@ import { Field, ID, ObjectType } from "type-graphql";
 import { Match } from "./Match";
 import { Point } from "./Point";
 import { Tournament } from "./Tournament";
+import { Game } from "./Game";
 
 @ObjectType()
 @Entity()
@@ -47,4 +48,20 @@ export class Player extends BaseEntity {
     @Field(() => [Point])
     @OneToMany(() => Point, point => point.loser)
     lostPoints: Promise<Point[]>;
+
+    @Field(() => [Game])
+    @OneToMany(() => Game, game => game.winner)
+    wonGames: Promise<Game[]>;
+
+    @Field(() => [Game])
+    @OneToMany(() => Game, game => game.loser)
+    lostGames: Promise<Game[]>;
+
+    @Field(() => [Match])
+    @OneToMany(() => Match, match => match.winner)
+    wonMatches: Promise<Match[]>;
+
+    @Field(() => [Match])
+    @OneToMany(() => Match, match => match.loser)
+    lostMatches: Promise<Match[]>;
 }

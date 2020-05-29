@@ -75,4 +75,14 @@ export class MatchResolver {
     async players(@Root() parent: Match): Promise<Player[]> {
         return await parent.players;
     }
+
+    @FieldResolver({ nullable: true })
+    async winner(@Root() parent: Match): Promise<Player> {
+        return await parent.winner;
+    }
+
+    @FieldResolver({ nullable: true })
+    async loser(@Root() parent: Match): Promise<Player> {
+        return await parent.loser;
+    }
 }

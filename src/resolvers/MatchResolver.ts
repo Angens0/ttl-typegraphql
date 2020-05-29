@@ -9,6 +9,7 @@ import {
 } from "type-graphql";
 import { Match } from "../entity/Match";
 import { Player } from "../entity/Player";
+import { Point } from "../entity/Point";
 
 @Resolver(() => Match)
 export class MatchResolver {
@@ -27,6 +28,24 @@ export class MatchResolver {
         }
 
         return await match.start();
+    }
+
+    @Mutation(() => Point)
+    async addPoint(
+        @Arg("matchId", () => ID) matchId: number,
+        @Arg("winnerId", () => ID) winnerId: number
+    ): Promise<Point> {
+        const match = await Match.findOne(matchId);
+        if (!match) {
+            throw new Error("Match not found");
+        }
+
+        const winner = await Player.findOne(winnerId);
+        if (!winner) {
+            throw new Error("Player not found");
+        }
+
+        return await match.addPoint(winner);
     }
 
     @Mutation(() => Match)

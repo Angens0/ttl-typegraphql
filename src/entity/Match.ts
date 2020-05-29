@@ -11,6 +11,7 @@ import { ObjectType, Field, ID } from "type-graphql";
 import { Player } from "./Player";
 import { Game } from "./Game";
 import { Tournament } from "./Tournament";
+import { Point } from "./Point";
 
 @ObjectType()
 @Entity()
@@ -60,5 +61,32 @@ export class Match extends BaseEntity {
         await this.save();
 
         return this;
+    }
+
+    async addPoint(winner: Player): Promise<Point> {
+        if (!this.isStarted) {
+            throw new Error("The Match is not started");
+        }
+
+        if (this.isFinished) {
+            throw new Error("The Match is finished");
+        }
+
+        const game = await this.getActiveGame();
+        const loser = (await this.players).find(
+            player => player.id !== winner.id
+        );
+
+        return await Point.createPoint(winner, loser, game);
+    }
+
+    async getActiveGame(): Promise<Game> {
+        const games = await this.games;
+        const activeGame = games.find(game => !game.isFinished);
+        if (!activeGame) {
+            throw new Error("Game not found");
+        }
+
+        return activeGame;
     }
 }

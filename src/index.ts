@@ -7,6 +7,7 @@ import { PlayerResolver } from "./resolvers/PlayerResolver";
 import { MatchResolver } from "./resolvers/MatchResolver";
 import { PointResolver } from "./resolvers/PointResolver";
 import { GameResolver } from "./resolvers/GameResolver";
+import { TournamentResolver } from "./resolvers/TournamentResolver";
 
 const PORT = process.env.PORT || 7000;
 
@@ -20,6 +21,7 @@ const main = async () => {
             MatchResolver,
             GameResolver,
             PointResolver,
+            TournamentResolver,
         ],
     });
 

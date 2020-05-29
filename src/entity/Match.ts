@@ -29,7 +29,7 @@ export class Match extends BaseEntity {
 
     @Field(() => [Tournament])
     @ManyToOne(() => Tournament, tournament => tournament.matches)
-    tournament: Tournament;
+    tournament: Promise<Tournament>;
 
     @Field(() => [Player])
     @ManyToMany(() => Player, player => player.matches)
@@ -38,4 +38,15 @@ export class Match extends BaseEntity {
     @Field(() => [Game])
     @OneToMany(() => Game, game => game.match)
     games: Promise<Game[]>;
+
+    static async createMatch(
+        players: [Player, Player],
+        tournament: Tournament
+    ): Promise<Match> {
+        const match = await Match.create({}).save();
+        match.players = Promise.resolve(players);
+        match.tournament = Promise.resolve(tournament);
+
+        return await match.save();
+    }
 }

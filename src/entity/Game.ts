@@ -44,4 +44,23 @@ export class Game extends BaseEntity {
         game.match = Promise.resolve(match);
         return await game.save();
     }
+
+    async getScore(): Promise<{ [playerId: string]: number }> {
+        // const score = new Map<Player, number>();
+        const match = await this.match;
+        const players = await match.players;
+
+        const score = {};
+        score[players[0].id] = 0;
+        score[players[1].id] = 0;
+
+        const points = await this.points;
+
+        for (let point of points) {
+            const winner = await point.winner;
+            ++score[winner.id];
+        }
+
+        return score;
+    }
 }

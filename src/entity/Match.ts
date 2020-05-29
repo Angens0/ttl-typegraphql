@@ -77,6 +77,9 @@ export class Match extends BaseEntity {
             player => player.id !== winner.id
         );
 
+        const gameScore = await game.getScore();
+        console.log(gameScore);
+
         return await Point.createPoint(winner, loser, game);
     }
 

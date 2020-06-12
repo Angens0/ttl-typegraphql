@@ -3,15 +3,15 @@
     "version": "0.0.1",
     "description": "Awesome project developed with TypeORM.",
     "devDependencies": {
-        "@types/node": "^14.0.5",
+        "@types/node": "^14.0.13",
         "nodemon": "^2.0.4",
-        "ts-node": "8.10.1",
-        "typescript": "3.9.3"
+        "ts-node": "8.10.2",
+        "typescript": "3.9.5"
     },
     "dependencies": {
-        "apollo-server": "^2.13.1",
+        "apollo-server": "^2.14.3",
         "class-validator": "^0.12.2",
-        "graphql": "^15.0.0",
+        "graphql": "^15.1.0",
         "pg": "^8.2.1",
         "reflect-metadata": "^0.1.13",
         "type-graphql": "^1.0.0-rc.2",

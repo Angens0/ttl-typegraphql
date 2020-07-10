@@ -6,6 +6,8 @@ import {
     Query,
     FieldResolver,
     Root,
+    PubSub,
+    PubSubEngine,
 } from "type-graphql";
 import { Match } from "../entity/Match";
 import { Player } from "../entity/Player";
@@ -33,19 +35,27 @@ export class MatchResolver {
     @Mutation(() => Point)
     async addPoint(
         @Arg("matchId", () => ID) matchId: number,
-        @Arg("winnerId", () => ID) winnerId: number
+        @Arg("winnerId", () => ID) winnerId: number,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<Point> {
+        winnerId = Number(winnerId);
         const match = await Match.findOne(matchId);
         if (!match) {
             throw new Error("Match not found");
         }
 
-        const winner = await Player.findOne(winnerId);
+        const matchPlayers = await match.players;
+
+        const winner = matchPlayers.find(player => player.id === winnerId);
         if (!winner) {
             throw new Error("Player not found");
         }
 
-        return await match.addPoint(winner);
+        const point = await match.addPoint(winner);
+
+        await pubSub.publish("POINTS", point);
+
+        return point;
     }
 
     @Mutation(() => Match)

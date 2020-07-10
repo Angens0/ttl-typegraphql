@@ -6,6 +6,7 @@ import {
     Arg,
     ID,
     Query,
+    Subscription,
 } from "type-graphql";
 import { Point } from "../entity/Point";
 import { Player } from "../entity/Player";
@@ -13,6 +14,13 @@ import { Game } from "../entity/Game";
 
 @Resolver(() => Point)
 export class PointResolver {
+    @Subscription({
+        topics: "POINTS",
+    })
+    newPoint(@Root() point: Point): Point {
+        return point;
+    }
+
     @Query(() => Point)
     async point(@Arg("id", () => ID) id: number): Promise<Point> {
         return await Point.findOne(id);

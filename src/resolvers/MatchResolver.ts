@@ -8,6 +8,7 @@ import {
     Root,
     PubSub,
     PubSubEngine,
+    Subscription,
 } from "type-graphql";
 import { Match } from "../entity/Match";
 import { Player } from "../entity/Player";
@@ -15,6 +16,13 @@ import { Point } from "../entity/Point";
 
 @Resolver(() => Match)
 export class MatchResolver {
+    @Subscription({
+        topics: "MATCHES",
+    })
+    matchUpdate(@Root() match: Match): Match {
+        return match;
+    }
+
     @Query(() => [Match])
     async matches(): Promise<Match[]> {
         return await Match.find();
@@ -22,14 +30,19 @@ export class MatchResolver {
 
     @Mutation(() => Match)
     async startMatch(
-        @Arg("matchId", () => ID) matchId: number
+        @Arg("matchId", () => ID) matchId: number,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<Match> {
         const match = await Match.findOne(matchId);
         if (!match) {
             throw new Error("Match not found");
         }
 
-        return await match.start();
+        await match.start();
+
+        await pubSub.publish("MATCHES", match);
+
+        return match;
     }
 
     @Mutation(() => Point)
@@ -53,13 +66,16 @@ export class MatchResolver {
 
         const point = await match.addPoint(winner);
 
-        await pubSub.publish("POINTS", point);
+        await pubSub.publish("MATCHES", match);
 
         return point;
     }
 
     @Mutation(() => Match)
-    async createMatch(@Arg("players", () => [ID]) data: string[]) {
+    async createMatch(
+        @Arg("players", () => [ID]) data: string[],
+        @PubSub() pubSub: PubSubEngine
+    ) {
         if (data.length !== 2) {
             throw new Error("2 Players are needed to create match");
         }
@@ -77,6 +93,8 @@ export class MatchResolver {
         const match = await Match.create({
             players: Promise.resolve(players),
         }).save();
+
+        await pubSub.publish("MATCHES", match);
 
         return match;
     }

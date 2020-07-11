@@ -14,41 +14,41 @@ import { Game } from "../entity/Game";
 
 @Resolver(() => Point)
 export class PointResolver {
-    @Subscription({
-        topics: "POINTS",
-    })
-    newPoint(@Root() point: Point): Point {
-        return point;
-    }
+    // @Subscription({
+    //     topics: "POINTS",
+    // })
+    // newPoint(@Root() point: Point): Point {
+    //     return point;
+    // }
 
     @Query(() => Point)
     async point(@Arg("id", () => ID) id: number): Promise<Point> {
         return await Point.findOne(id);
     }
 
-    @Mutation(() => Point)
-    async createPoint(
-        @Arg("winner", () => ID) winnerId: number,
-        @Arg("loser", () => ID) loserId: number,
-        @Arg("game", () => ID) gameId: number
-    ): Promise<Point> {
-        const winner = await Player.findOne(winnerId);
-        const loser = await Player.findOne(loserId);
-        if (!winner && !loser) {
-            throw new Error("Player not found");
-        }
-        const game = await Game.findOne(gameId);
-        if (!game) {
-            throw new Error("Game not found");
-        }
+    // @Mutation(() => Point)
+    // async createPoint(
+    //     @Arg("winner", () => ID) winnerId: number,
+    //     @Arg("loser", () => ID) loserId: number,
+    //     @Arg("game", () => ID) gameId: number
+    // ): Promise<Point> {
+    //     const winner = await Player.findOne(winnerId);
+    //     const loser = await Player.findOne(loserId);
+    //     if (!winner && !loser) {
+    //         throw new Error("Player not found");
+    //     }
+    //     const game = await Game.findOne(gameId);
+    //     if (!game) {
+    //         throw new Error("Game not found");
+    //     }
 
-        const point = new Point();
-        point.winner = Promise.resolve(winner);
-        point.loser = Promise.resolve(loser);
-        point.game = Promise.resolve(game);
+    //     const point = new Point();
+    //     point.winner = Promise.resolve(winner);
+    //     point.loser = Promise.resolve(loser);
+    //     point.game = Promise.resolve(game);
 
-        return await point.save();
-    }
+    //     return await point.save();
+    // }
 
     @FieldResolver(() => Player)
     async winner(@Root() parent: Point): Promise<Player> {

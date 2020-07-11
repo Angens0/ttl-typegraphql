@@ -19,18 +19,18 @@ export class GameResolver {
         return await Game.findOne(id);
     }
 
-    @Mutation(() => Game)
-    async createGame(@Arg("match", () => ID) matchId: number): Promise<Game> {
-        const match = await Match.findOne(matchId);
-        if (!match) {
-            throw new Error("Match not found");
-        }
+    // @Mutation(() => Game)
+    // async createGame(@Arg("match", () => ID) matchId: number): Promise<Game> {
+    //     const match = await Match.findOne(matchId);
+    //     if (!match) {
+    //         throw new Error("Match not found");
+    //     }
 
-        const game = new Game();
-        game.match = Promise.resolve(match);
+    //     const game = new Game();
+    //     game.match = Promise.resolve(match);
 
-        return await game.save();
-    }
+    //     return await game.save();
+    // }
 
     @FieldResolver(() => Match)
     async match(@Root() parent: Game): Promise<Match> {

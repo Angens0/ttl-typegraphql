@@ -8,6 +8,7 @@ import {
     OneToMany,
     ManyToMany,
     JoinTable,
+    Column,
 } from "typeorm";
 import { Player } from "./Player";
 import { Match } from "./Match";
@@ -18,6 +19,14 @@ export class Tournament extends BaseEntity {
     @Field(() => ID)
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Field()
+    @Column({ default: true })
+    isStarted: boolean;
+
+    @Field()
+    @Column({ default: false })
+    isFinished: boolean;
 
     @Field(() => [Player])
     @ManyToMany(() => Player, player => player.tournaments)
@@ -63,5 +72,18 @@ export class Tournament extends BaseEntity {
         }
 
         return pairs;
+    }
+
+    async finish(): Promise<Tournament> {
+        this.isFinished = true;
+
+        return await this.save();
+    }
+
+    async submitFinishedMatch() {
+        const matches = await this.matches;
+        if (matches.every(match => match.isFinished)) {
+            await this.finish();
+        }
     }
 }

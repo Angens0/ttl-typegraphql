@@ -85,7 +85,12 @@ export class Match extends BaseEntity {
         this.winner = Promise.resolve(winner);
         this.loser = Promise.resolve(loser);
 
-        return await this.save();
+        await this.save();
+
+        const tournament = await this.tournament;
+        await tournament.submitFinishedMatch();
+
+        return this;
     }
 
     async addPoint(winner: Player): Promise<Point> {

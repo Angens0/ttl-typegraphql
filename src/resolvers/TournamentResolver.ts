@@ -6,8 +6,13 @@ import { Match } from "../entity/Match";
 @Resolver(() => Tournament)
 export class TournamentResolver {
     @Query(() => [Tournament])
-    async Tournamentes(): Promise<Tournament[]> {
+    async tournaments(): Promise<Tournament[]> {
         return await Tournament.find();
+    }
+
+    @Query(() => Tournament, { nullable: true })
+    async activeTournament(): Promise<Tournament> | null {
+        return await Tournament.getActiveTournament();
     }
 
     @Mutation(() => Tournament)

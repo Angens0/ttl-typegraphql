@@ -28,6 +28,11 @@ export class MatchResolver {
         return await Match.find();
     }
 
+    @Query(() => Match, { nullable: true })
+    async match(@Arg("matchId", () => ID) matchId: number): Promise<Match> {
+        return await Match.findOne(matchId);
+    }
+
     @Mutation(() => Match)
     async startMatch(
         @Arg("matchId", () => ID) matchId: number,

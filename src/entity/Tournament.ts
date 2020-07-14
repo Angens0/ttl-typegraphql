@@ -45,7 +45,23 @@ export class Tournament extends BaseEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
+    static async getActiveTournament(): Promise<Tournament> | null {
+        const tournament = await Tournament.findOne({
+            isStarted: true,
+            isFinished: false,
+        });
+        if (!tournament) {
+            return null;
+        }
+
+        return tournament;
+    }
+
     static async createTournament(): Promise<Tournament> {
+        if (Tournament.getActiveTournament()) {
+            throw new Error("Only one tournament can be active");
+        }
+
         const players = await Player.find();
 
         const tournament = await Tournament.create({}).save();

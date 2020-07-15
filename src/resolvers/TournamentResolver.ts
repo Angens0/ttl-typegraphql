@@ -1,13 +1,37 @@
 import { Tournament } from "../entity/Tournament";
-import { Resolver, Mutation, Query, FieldResolver, Root } from "type-graphql";
+import {
+    Resolver,
+    Mutation,
+    Query,
+    FieldResolver,
+    Root,
+    Arg,
+    Int,
+} from "type-graphql";
 import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
+import { OrderOptions } from "../enums/OrderOptions";
 
 @Resolver(() => Tournament)
 export class TournamentResolver {
     @Query(() => [Tournament])
-    async tournaments(): Promise<Tournament[]> {
-        return await Tournament.find();
+    async tournaments(
+        @Arg("take", () => Int, { defaultValue: 10 })
+        take: number,
+        @Arg("skip", () => Int, { defaultValue: 0 })
+        skip: number,
+        @Arg("order", () => OrderOptions, {
+            defaultValue: OrderOptions.DESC,
+        })
+        order: OrderOptions
+    ): Promise<Tournament[]> {
+        return await Tournament.find({
+            order: {
+                id: order,
+            },
+            skip,
+            take,
+        });
     }
 
     @Query(() => Tournament, { nullable: true })

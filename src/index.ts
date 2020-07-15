@@ -1,18 +1,23 @@
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server";
 import { createConnection } from "typeorm";
-import { buildSchema } from "type-graphql";
+import { buildSchema, registerEnumType } from "type-graphql";
 import { UserResolver } from "./resolvers/UserResolver";
 import { PlayerResolver } from "./resolvers/PlayerResolver";
 import { MatchResolver } from "./resolvers/MatchResolver";
 import { PointResolver } from "./resolvers/PointResolver";
 import { GameResolver } from "./resolvers/GameResolver";
 import { TournamentResolver } from "./resolvers/TournamentResolver";
+import { OrderOptions } from "./enums/OrderOptions";
 
 const PORT = process.env.PORT || 7000;
 
 const main = async () => {
     await createConnection();
+
+    registerEnumType(OrderOptions, {
+        name: "OrderOptions",
+    });
 
     const schema = await buildSchema({
         resolvers: [

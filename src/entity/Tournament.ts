@@ -47,7 +47,7 @@ export class Tournament extends BaseEntity {
 
     static async getActiveTournament(): Promise<Tournament> | null {
         const tournament = await Tournament.findOne({
-            isStarted: true,
+            isStarted: false,
             isFinished: false,
         });
         if (!tournament) {
@@ -75,6 +75,8 @@ export class Tournament extends BaseEntity {
         );
         await Promise.all(matchPromises);
 
+        await tournament.start();
+
         return tournament;
     }
 
@@ -88,6 +90,12 @@ export class Tournament extends BaseEntity {
         }
 
         return pairs;
+    }
+
+    async start(): Promise<Tournament> {
+        this.isStarted = true;
+
+        return await this.save();
     }
 
     async finish(): Promise<Tournament> {

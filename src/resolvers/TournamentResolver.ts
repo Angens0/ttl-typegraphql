@@ -7,6 +7,9 @@ import {
     Root,
     Arg,
     Int,
+    Subscription,
+    PubSub,
+    PubSubEngine,
 } from "type-graphql";
 import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
@@ -14,6 +17,13 @@ import { OrderOptions } from "../enums/OrderOptions";
 
 @Resolver(() => Tournament)
 export class TournamentResolver {
+    @Subscription({
+        topics: "TOURNAMENTS",
+    })
+    tournamentStart(@Root() tournament: Tournament): Tournament {
+        return tournament;
+    }
+
     @Query(() => [Tournament])
     async tournaments(
         @Arg("take", () => Int, { defaultValue: 10 })
@@ -40,8 +50,12 @@ export class TournamentResolver {
     }
 
     @Mutation(() => Tournament)
-    async createTournament() {
-        return await Tournament.createTournament();
+    async createTournament(@PubSub() pubSub: PubSubEngine) {
+        const tournament = await Tournament.createTournament();
+
+        await pubSub.publish("TOURNAMENTS", tournament);
+
+        return tournament;
     }
 
     @FieldResolver()

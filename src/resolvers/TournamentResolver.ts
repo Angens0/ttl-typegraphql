@@ -14,11 +14,12 @@ import {
 import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
 import { OrderOptions } from "../enums/OrderOptions";
+import { SubscriptionTopics } from "../enums/SubscriptionTopics";
 
 @Resolver(() => Tournament)
 export class TournamentResolver {
     @Subscription({
-        topics: "TOURNAMENTS",
+        topics: SubscriptionTopics.TOURNAMENT_START,
     })
     tournamentStart(@Root() tournament: Tournament): Tournament {
         return tournament;
@@ -53,7 +54,7 @@ export class TournamentResolver {
     async createTournament(@PubSub() pubSub: PubSubEngine) {
         const tournament = await Tournament.createTournament();
 
-        await pubSub.publish("TOURNAMENTS", tournament);
+        await pubSub.publish(SubscriptionTopics.TOURNAMENT_START, tournament);
 
         return tournament;
     }

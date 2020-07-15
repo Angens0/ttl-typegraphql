@@ -13,11 +13,12 @@ import {
 import { Match } from "../entity/Match";
 import { Player } from "../entity/Player";
 import { Point } from "../entity/Point";
+import { SubscriptionTopics } from "../enums/SubscriptionTopics";
 
 @Resolver(() => Match)
 export class MatchResolver {
     @Subscription({
-        topics: "MATCHES",
+        topics: SubscriptionTopics.MATCH_UPDATE,
     })
     matchUpdate(@Root() match: Match): Match {
         return match;
@@ -45,7 +46,7 @@ export class MatchResolver {
 
         await match.start();
 
-        await pubSub.publish("MATCHES", match);
+        await pubSub.publish(SubscriptionTopics.MATCH_UPDATE, match);
 
         return match;
     }
@@ -71,7 +72,7 @@ export class MatchResolver {
 
         const point = await match.addPoint(winner);
 
-        await pubSub.publish("MATCHES", match);
+        await pubSub.publish(SubscriptionTopics.MATCH_UPDATE, match);
 
         return point;
     }
@@ -99,7 +100,7 @@ export class MatchResolver {
             players: Promise.resolve(players),
         }).save();
 
-        await pubSub.publish("MATCHES", match);
+        await pubSub.publish(SubscriptionTopics.MATCH_UPDATE, match);
 
         return match;
     }

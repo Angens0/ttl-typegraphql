@@ -58,7 +58,7 @@ export class Tournament extends BaseEntity {
     }
 
     static async createTournament(): Promise<Tournament> {
-        if (Tournament.getActiveTournament()) {
+        if (await Tournament.getActiveTournament()) {
             throw new Error("Only one tournament can be active");
         }
 

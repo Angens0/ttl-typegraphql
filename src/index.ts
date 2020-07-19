@@ -14,6 +14,7 @@ import { GameResolver } from "./resolvers/GameResolver";
 import { TournamentResolver } from "./resolvers/TournamentResolver";
 import { OrderOptions } from "./enums/OrderOptions";
 import { UserRole, User } from "./entity/User";
+import { customAuthChecker } from "./auth/customAuthChecker";
 
 const PORT = process.env.PORT || 7000;
 
@@ -51,6 +52,7 @@ const main = async () => {
             PointResolver,
             TournamentResolver,
         ],
+        authChecker: customAuthChecker,
     });
 
     const apolloServer = new ApolloServer({

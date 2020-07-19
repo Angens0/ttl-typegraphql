@@ -1,4 +1,12 @@
-import { Resolver, Query, InputType, Field, Mutation, Arg } from "type-graphql";
+import {
+    Resolver,
+    Query,
+    InputType,
+    Field,
+    Mutation,
+    Arg,
+    Authorized,
+} from "type-graphql";
 import { User, UserRole } from "../entity/User";
 import { hash, compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
@@ -17,6 +25,7 @@ class CreateUserInput {
 
 @Resolver()
 export class UserResolver {
+    @Authorized([UserRole.ADMIN, UserRole.TABLE])
     @Query(() => [User])
     users(): Promise<User[]> {
         return User.find();

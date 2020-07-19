@@ -1,5 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    BaseEntity,
+    CreateDateColumn,
+    UpdateDateColumn,
+} from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
+
+export enum UserRole {
+    ADMIN = "admin",
+    TABLE = "table",
+}
 
 @ObjectType()
 @Entity()
@@ -10,13 +22,24 @@ export class User extends BaseEntity {
 
     @Field()
     @Column()
-    firstName: string;
+    name: string;
+
+    @Column()
+    password: string;
 
     @Field()
-    @Column()
-    lastName: string;
+    @Column({
+        type: "enum",
+        enum: UserRole,
+        default: UserRole.TABLE,
+    })
+    role: UserRole;
 
     @Field()
-    @Column()
-    age: number;
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @Field()
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

@@ -122,29 +122,43 @@ export class Match extends BaseEntity {
         const loser = players.find(player => player.id !== winner.id);
         const point = await Point.createPoint(winner, loser, game);
 
-        const gameScore = await game.getScore();
-        const winnerScore = gameScore[winner.id];
-        const loserScore = gameScore[loser.id];
+        let winnerScore: MatchPlayerScore;
+        let loserScore: MatchPlayerScore;
+        const scores = await this.scores;
+
+        for (const score of scores) {
+            (await score.player).id === winner.id
+                ? (winnerScore = score)
+                : (loserScore = score);
+        }
+
+        winnerScore.pointWonCount++;
+        await winnerScore.save();
 
         if (
-            winnerScore >= MIN_POINTS_WIN_GAME &&
-            winnerScore - loserScore >= MIN_POINTS_DIFF_WIN_GAME
+            winnerScore.pointWonCount >= MIN_POINTS_WIN_GAME &&
+            winnerScore.pointWonCount - loserScore.pointWonCount >=
+                MIN_POINTS_DIFF_WIN_GAME
         ) {
             await game.finish(winner, loser);
+            winnerScore.gameWonCount++;
+            await winnerScore.save();
 
-            const matchScore = await this.matchScore();
             const gamesToWinMatch = Math.ceil(MATCH_BEST_OF / 2);
-            if (matchScore[winner.id] >= gamesToWinMatch) {
+            if (winnerScore.gameWonCount >= gamesToWinMatch) {
                 this.finish(winner, loser);
-                console.log("MATCH FINISHED!");
             } else {
+                winnerScore.pointWonCount = 0;
+                await winnerScore.save();
+                loserScore.pointWonCount = 0;
+                await loserScore.save();
                 await Game.createGame(this);
-                console.log("CREATING NEW GAME");
             }
         }
 
-        console.log("Game score: ", gameScore);
-        console.log("Match score: ", await this.matchScore());
+        console.log(
+            `${winner.firstName} ${winner.lastName} ${winnerScore.gameWonCount} | ${winnerScore.pointWonCount} : ${loserScore.pointWonCount} | ${loserScore.gameWonCount} ${loser.firstName} ${loser.lastName}`
+        );
 
         return point;
     }

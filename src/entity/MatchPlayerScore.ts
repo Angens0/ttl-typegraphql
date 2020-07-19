@@ -19,12 +19,12 @@ export class MatchPlayerScore extends BaseEntity {
     id: number;
 
     @Field(() => Int)
-    @Column("int")
-    points: number;
+    @Column("int", { default: 0 })
+    pointWonCount: number;
 
     @Field(() => Int)
-    @Column("int")
-    games: number;
+    @Column("int", { default: 0 })
+    gameWonCount: number;
 
     @Field(() => Player)
     @ManyToOne(() => Player)

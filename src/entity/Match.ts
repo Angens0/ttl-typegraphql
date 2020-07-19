@@ -72,6 +72,13 @@ export class Match extends BaseEntity {
         match.players = Promise.resolve(players);
         match.tournament = Promise.resolve(tournament);
 
+        for (const player of players) {
+            const mps = new MatchPlayerScore();
+            mps.player = Promise.resolve(player);
+            mps.match = Promise.resolve(match);
+            await mps.save();
+        }
+
         return await match.save();
     }
 

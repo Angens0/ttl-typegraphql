@@ -1,5 +1,6 @@
 import { Resolver, Query, InputType, Field, Mutation, Arg } from "type-graphql";
 import { User, UserRole } from "../entity/User";
+import { hash } from "bcryptjs";
 
 @InputType()
 class CreateUserInput {
@@ -9,7 +10,7 @@ class CreateUserInput {
     @Field()
     password: string;
 
-    @Field()
+    @Field(() => UserRole, { defaultValue: UserRole.TABLE })
     role: UserRole;
 }
 
@@ -24,6 +25,8 @@ export class UserResolver {
     async createUser(
         @Arg("data", () => CreateUserInput) data: CreateUserInput
     ): Promise<User> {
-        return await User.create(data).save();
+        const hashedPassword = await hash(data.password, 10);
+
+        return await User.create({ ...data, password: hashedPassword }).save();
     }
 }

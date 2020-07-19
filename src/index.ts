@@ -9,6 +9,7 @@ import { PointResolver } from "./resolvers/PointResolver";
 import { GameResolver } from "./resolvers/GameResolver";
 import { TournamentResolver } from "./resolvers/TournamentResolver";
 import { OrderOptions } from "./enums/OrderOptions";
+import { UserRole } from "./entity/User";
 
 const PORT = process.env.PORT || 7000;
 
@@ -17,6 +18,10 @@ const main = async () => {
 
     registerEnumType(OrderOptions, {
         name: "OrderOptions",
+    });
+
+    registerEnumType(UserRole, {
+        name: "UserRole",
     });
 
     const schema = await buildSchema({

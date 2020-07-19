@@ -27,7 +27,7 @@ export class User extends BaseEntity {
     @Column()
     password: string;
 
-    @Field()
+    @Field(() => UserRole)
     @Column({
         type: "enum",
         enum: UserRole,

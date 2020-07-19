@@ -1,5 +1,9 @@
 import "reflect-metadata";
-import { ApolloServer } from "apollo-server";
+import { ApolloServer } from "apollo-server-express";
+import * as http from "http";
+import * as express from "express";
+import * as expressJwt from "express-jwt";
+import { verify } from "jsonwebtoken";
 import { createConnection } from "typeorm";
 import { buildSchema, registerEnumType } from "type-graphql";
 import { UserResolver } from "./resolvers/UserResolver";
@@ -9,12 +13,26 @@ import { PointResolver } from "./resolvers/PointResolver";
 import { GameResolver } from "./resolvers/GameResolver";
 import { TournamentResolver } from "./resolvers/TournamentResolver";
 import { OrderOptions } from "./enums/OrderOptions";
-import { UserRole } from "./entity/User";
+import { UserRole, User } from "./entity/User";
 
 const PORT = process.env.PORT || 7000;
 
 const main = async () => {
+    if (!process.env.JWT_KEY) {
+        throw new Error("JWT_KEY is required!");
+    }
+
     await createConnection();
+
+    const app = express();
+    app.use(
+        express.json(),
+        expressJwt({
+            secret: process.env.JWT_KEY,
+            algorithms: ["HS256"],
+            credentialsRequired: false,
+        })
+    );
 
     registerEnumType(OrderOptions, {
         name: "OrderOptions",
@@ -35,12 +53,33 @@ const main = async () => {
         ],
     });
 
-    const server = new ApolloServer({
+    const apolloServer = new ApolloServer({
         schema,
+        context: ({ req, connection }) => {
+            if (req?.user) {
+                return { user: req.user };
+            }
+
+            if (connection?.context?.accessToken) {
+                const { accessToken } = connection.context;
+                const decodedToken = verify(
+                    accessToken,
+                    process.env.JWT_KEY
+                ) as User;
+                return { userId: decodedToken.id };
+            }
+
+            return {};
+        },
     });
 
-    const { url } = await server.listen({ port: PORT });
-    console.log(`Server is running. GraphQL Playground available at ${url}`);
+    apolloServer.applyMiddleware({ app, path: "/graphql" });
+    const httpServer = http.createServer(app);
+    apolloServer.installSubscriptionHandlers(httpServer);
+
+    httpServer.listen(PORT, () => {
+        console.log(`Server is running on port: ${PORT}`);
+    });
 };
 
 main();

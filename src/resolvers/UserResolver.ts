@@ -1,6 +1,7 @@
 import { Resolver, Query, InputType, Field, Mutation, Arg } from "type-graphql";
 import { User, UserRole } from "../entity/User";
-import { hash } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
+import { sign } from "jsonwebtoken";
 
 @InputType()
 class CreateUserInput {
@@ -28,5 +29,32 @@ export class UserResolver {
         const hashedPassword = await hash(data.password, 10);
 
         return await User.create({ ...data, password: hashedPassword }).save();
+    }
+
+    @Mutation(() => String, { nullable: true })
+    async signIn(
+        @Arg("login", () => String) login: string,
+        @Arg("password", () => String) password: string
+    ): Promise<String> {
+        const user = await User.findOne({ name: login });
+        if (!user) {
+            throw new Error("Invalid login or password");
+        }
+
+        const isPasswordValid = await compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error("Invalid login or password");
+        }
+
+        const token = sign(
+            {
+                id: user.id,
+                login: user.name,
+                role: user.role,
+            },
+            process.env.JWT_KEY
+        );
+
+        return token;
     }
 }

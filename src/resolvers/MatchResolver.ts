@@ -14,6 +14,7 @@ import { Match } from "../entity/Match";
 import { Player } from "../entity/Player";
 import { Point } from "../entity/Point";
 import { SubscriptionTopics } from "../enums/SubscriptionTopics";
+import { MatchPlayerScore } from "../entity/MatchPlayerScore";
 
 @Resolver(() => Match)
 export class MatchResolver {
@@ -103,6 +104,11 @@ export class MatchResolver {
         await pubSub.publish(SubscriptionTopics.MATCH_UPDATE, match);
 
         return match;
+    }
+
+    @FieldResolver()
+    async scores(@Root() parent: Match): Promise<MatchPlayerScore[]> {
+        return await parent.scores;
     }
 
     @FieldResolver()

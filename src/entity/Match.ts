@@ -12,6 +12,7 @@ import { Player } from "./Player";
 import { Game } from "./Game";
 import { Tournament } from "./Tournament";
 import { Point } from "./Point";
+import { MatchPlayerScore } from "./MatchPlayerScore";
 
 const MIN_POINTS_WIN_GAME = 11;
 const MIN_POINTS_DIFF_WIN_GAME = 2;
@@ -35,6 +36,13 @@ export class Match extends BaseEntity {
     @Field()
     @Column({ default: false })
     isWalkover: boolean;
+
+    @Field(() => [MatchPlayerScore])
+    @OneToMany(
+        () => MatchPlayerScore,
+        matchPlayerScore => matchPlayerScore.match
+    )
+    scores: Promise<MatchPlayerScore[]>;
 
     @Field(() => Player, { nullable: true })
     @ManyToOne(() => Player)

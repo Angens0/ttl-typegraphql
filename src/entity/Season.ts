@@ -30,14 +30,9 @@ export class Season extends BaseEntity {
     @OneToMany(() => Tournament, tournament => tournament.season)
     tournaments: Promise<Tournament[]>;
 
-    @Field(() => [Player])
-    @ManyToMany(() => Player, player => player.seasons)
-    @JoinTable()
-    players: Promise<Player[]>;
-
     @Field(() => [SeasonPlayerScore])
-    @OneToMany(() => SeasonPlayerScore, spc => spc.season)
-    seasonPlayerScores: SeasonPlayerScore;
+    @OneToMany(() => SeasonPlayerScore, sps => sps.season)
+    seasonPlayerScores: Promise<SeasonPlayerScore[]>;
 
     @Field()
     @CreateDateColumn()
@@ -67,10 +62,20 @@ export class Season extends BaseEntity {
         }
 
         const season = await Season.create({}).save();
-        season.players = Promise.resolve(players);
+        season.seasonPlayerScores = Promise.all(
+            players.map(player =>
+                SeasonPlayerScore.createSeasonPlayerScore(season, player)
+            )
+        );
         season.state = EntityState.ONGOING;
 
         return await season.save();
+    }
+
+    async getPlayers(): Promise<Player[]> {
+        const sps = await this.seasonPlayerScores;
+
+        return Promise.all(sps.map(sps => sps.player));
     }
 
     async finish(): Promise<Season> {

@@ -33,13 +33,9 @@ export class Player extends BaseEntity {
     @Column()
     birthDate: Date;
 
-    @Field(() => [Season])
-    @ManyToMany(() => Season, season => season.players)
-    seasons: Promise<Season[]>;
-
     @Field(() => [SeasonPlayerScore])
-    @OneToMany(() => SeasonPlayerScore, spc => spc.player)
-    seasonPlayerScores: SeasonPlayerScore;
+    @OneToMany(() => SeasonPlayerScore, sps => sps.player)
+    seasonPlayerScores: Promise<SeasonPlayerScore[]>;
 
     @Field(() => [Match])
     @ManyToMany(() => Match, match => match.players)

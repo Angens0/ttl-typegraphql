@@ -8,8 +8,8 @@ import {
     Arg,
     ID,
 } from "type-graphql";
-import { Player } from "../entity/Player";
 import { Season } from "../entity/Season";
+import { SeasonPlayerScore } from "../entity/SeasonPlayerScore";
 
 @Resolver(() => Season)
 export class SeasonResolver {
@@ -46,8 +46,10 @@ export class SeasonResolver {
     }
 
     @FieldResolver()
-    async players(@Root() parent: Season): Promise<Player[]> {
-        return await parent.players;
+    async seasonPlayerScores(
+        @Root() parent: Season
+    ): Promise<SeasonPlayerScore[]> {
+        return await parent.seasonPlayerScores;
     }
 
     @FieldResolver()

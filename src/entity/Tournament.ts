@@ -66,7 +66,7 @@ export class Tournament extends BaseEntity {
         if (!season) {
             throw new Error("Season not found");
         }
-        const players = await season.players;
+        const players = await season.getPlayers();
 
         const tournament = await Tournament.create({}).save();
         tournament.season = Promise.resolve(season);

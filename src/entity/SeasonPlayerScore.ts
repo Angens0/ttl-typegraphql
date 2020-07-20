@@ -37,4 +37,15 @@ export class SeasonPlayerScore extends BaseEntity {
     @Field()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    static async createSeasonPlayerScore(
+        season: Season,
+        player: Player
+    ): Promise<SeasonPlayerScore> {
+        const sps = await SeasonPlayerScore.create({}).save();
+        sps.player = Promise.resolve(player);
+        sps.season = Promise.resolve(season);
+
+        return await sps.save();
+    }
 }

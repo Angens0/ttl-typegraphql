@@ -13,7 +13,7 @@ import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
 import { Point } from "../entity/Point";
 import { Game } from "../entity/Game";
-import { Season } from "../entity/Season";
+import { SeasonPlayerScore } from "../entity/SeasonPlayerScore";
 
 @InputType()
 class CreatePlayerInput {
@@ -45,8 +45,10 @@ export class PlayerResolver {
     }
 
     @FieldResolver()
-    async seasons(@Root() parent: Player): Promise<Season[]> {
-        return await parent.seasons;
+    async seasonPlayerScores(
+        @Root() parent: Player
+    ): Promise<SeasonPlayerScore[]> {
+        return await parent.seasonPlayerScores;
     }
 
     @FieldResolver()

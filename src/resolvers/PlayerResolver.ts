@@ -13,6 +13,7 @@ import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
 import { Point } from "../entity/Point";
 import { Game } from "../entity/Game";
+import { Season } from "../entity/Season";
 
 @InputType()
 class CreatePlayerInput {
@@ -41,6 +42,11 @@ export class PlayerResolver {
     @Mutation(() => Player)
     createPlayer(@Arg("data") data: CreatePlayerInput): Promise<Player> {
         return Player.create(data).save();
+    }
+
+    @FieldResolver()
+    async seasons(@Root() parent: Player): Promise<Season[]> {
+        return await parent.seasons;
     }
 
     @FieldResolver()

@@ -12,6 +12,7 @@ import { Match } from "./Match";
 import { Point } from "./Point";
 import { Tournament } from "./Tournament";
 import { Game } from "./Game";
+import { Season } from "./Season";
 
 @ObjectType()
 @Entity()
@@ -31,6 +32,10 @@ export class Player extends BaseEntity {
     @Field()
     @Column()
     birthDate: Date;
+
+    @Field(() => [Season])
+    @ManyToMany(() => Season, season => season.players)
+    seasons: Promise<Season[]>;
 
     @Field(() => [Tournament])
     @ManyToMany(() => Tournament, tournament => tournament.players)

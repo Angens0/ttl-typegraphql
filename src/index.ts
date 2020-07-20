@@ -15,6 +15,8 @@ import { TournamentResolver } from "./resolvers/TournamentResolver";
 import { OrderOptions } from "./enums/OrderOptions";
 import { UserRole, User } from "./entity/User";
 import { customAuthChecker } from "./auth/customAuthChecker";
+import { EntityState } from "./enums/EntityState";
+import { SeasonResolver } from "./resolvers/SeasonResolver";
 
 const PORT = process.env.PORT || 7000;
 
@@ -43,6 +45,10 @@ const main = async () => {
         name: "UserRole",
     });
 
+    registerEnumType(EntityState, {
+        name: "EntityState",
+    });
+
     const schema = await buildSchema({
         resolvers: [
             UserResolver,
@@ -51,6 +57,7 @@ const main = async () => {
             GameResolver,
             PointResolver,
             TournamentResolver,
+            SeasonResolver,
         ],
         authChecker: customAuthChecker,
     });

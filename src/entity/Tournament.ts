@@ -9,9 +9,11 @@ import {
     ManyToMany,
     JoinTable,
     Column,
+    ManyToOne,
 } from "typeorm";
 import { Player } from "./Player";
 import { Match } from "./Match";
+import { Season } from "./Season";
 
 @ObjectType()
 @Entity()
@@ -27,6 +29,10 @@ export class Tournament extends BaseEntity {
     @Field()
     @Column({ default: false })
     isFinished: boolean;
+
+    @Field(() => Season)
+    @ManyToOne(() => Season, season => season.tournaments)
+    season: Promise<Season>;
 
     @Field(() => [Player])
     @ManyToMany(() => Player, player => player.tournaments)

@@ -15,6 +15,7 @@ import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
 import { OrderOptions } from "../enums/OrderOptions";
 import { SubscriptionTopics } from "../enums/SubscriptionTopics";
+import { Season } from "../entity/Season";
 
 @Resolver(() => Tournament)
 export class TournamentResolver {
@@ -57,6 +58,11 @@ export class TournamentResolver {
         await pubSub.publish(SubscriptionTopics.TOURNAMENT_START, tournament);
 
         return tournament;
+    }
+
+    @FieldResolver()
+    async season(@Root() parent: Tournament): Promise<Season> {
+        return await parent.season;
     }
 
     @FieldResolver()

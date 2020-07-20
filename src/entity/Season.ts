@@ -13,6 +13,7 @@ import { ObjectType, Field, ID } from "type-graphql";
 import { EntityState } from "../enums/EntityState";
 import { Tournament } from "./Tournament";
 import { Player } from "./Player";
+import { SeasonPlayerScore } from "./SeasonPlayerScore";
 
 @ObjectType()
 @Entity()
@@ -33,6 +34,10 @@ export class Season extends BaseEntity {
     @ManyToMany(() => Player, player => player.seasons)
     @JoinTable()
     players: Promise<Player[]>;
+
+    @Field(() => [SeasonPlayerScore])
+    @OneToMany(() => SeasonPlayerScore, spc => spc.season)
+    seasonPlayerScores: SeasonPlayerScore;
 
     @Field()
     @CreateDateColumn()

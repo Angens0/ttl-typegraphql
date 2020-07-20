@@ -12,6 +12,7 @@ import { Match } from "./Match";
 import { Point } from "./Point";
 import { Game } from "./Game";
 import { Season } from "./Season";
+import { SeasonPlayerScore } from "./SeasonPlayerScore";
 
 @ObjectType()
 @Entity()
@@ -35,6 +36,10 @@ export class Player extends BaseEntity {
     @Field(() => [Season])
     @ManyToMany(() => Season, season => season.players)
     seasons: Promise<Season[]>;
+
+    @Field(() => [SeasonPlayerScore])
+    @OneToMany(() => SeasonPlayerScore, spc => spc.player)
+    seasonPlayerScores: SeasonPlayerScore;
 
     @Field(() => [Match])
     @ManyToMany(() => Match, match => match.players)

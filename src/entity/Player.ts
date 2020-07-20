@@ -10,7 +10,6 @@ import {
 import { Field, ID, ObjectType } from "type-graphql";
 import { Match } from "./Match";
 import { Point } from "./Point";
-import { Tournament } from "./Tournament";
 import { Game } from "./Game";
 import { Season } from "./Season";
 
@@ -36,10 +35,6 @@ export class Player extends BaseEntity {
     @Field(() => [Season])
     @ManyToMany(() => Season, season => season.players)
     seasons: Promise<Season[]>;
-
-    @Field(() => [Tournament])
-    @ManyToMany(() => Tournament, tournament => tournament.players)
-    tournaments: Promise<Tournament[]>;
 
     @Field(() => [Match])
     @ManyToMany(() => Match, match => match.players)

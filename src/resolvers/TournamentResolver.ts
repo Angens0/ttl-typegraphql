@@ -67,7 +67,7 @@ export class TournamentResolver {
 
     @FieldResolver()
     async players(@Root() parent: Tournament): Promise<Player[]> {
-        return await parent.players;
+        return await (await parent.season).players;
     }
 
     @FieldResolver()

@@ -6,14 +6,13 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
-    ManyToMany,
-    JoinTable,
     Column,
     ManyToOne,
 } from "typeorm";
 import { Player } from "./Player";
 import { Match } from "./Match";
 import { Season } from "./Season";
+import { EntityState } from "../enums/EntityState";
 
 @ObjectType()
 @Entity()
@@ -33,11 +32,6 @@ export class Tournament extends BaseEntity {
     @Field(() => Season)
     @ManyToOne(() => Season, season => season.tournaments)
     season: Promise<Season>;
-
-    @Field(() => [Player])
-    @ManyToMany(() => Player, player => player.tournaments)
-    @JoinTable()
-    players: Promise<Player[]>;
 
     @Field(() => [Match])
     @OneToMany(() => Match, match => match.tournament)
@@ -68,10 +62,14 @@ export class Tournament extends BaseEntity {
             throw new Error("Only one tournament can be active");
         }
 
-        const players = await Player.find();
+        const season = await Season.findOne({ state: EntityState.ONGOING });
+        if (!season) {
+            throw new Error("Season not found");
+        }
+        const players = await season.players;
 
         const tournament = await Tournament.create({}).save();
-        tournament.players = Promise.resolve(players);
+        tournament.season = Promise.resolve(season);
         await tournament.save();
 
         const playerPairs = Tournament.getAllPlayerPairs(players);

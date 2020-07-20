@@ -62,7 +62,7 @@ export class Tournament extends BaseEntity {
             throw new Error("Only one tournament can be active");
         }
 
-        const season = await Season.findOne({ state: EntityState.ONGOING });
+        const season = await Season.getOngoingSeason();
         if (!season) {
             throw new Error("Season not found");
         }

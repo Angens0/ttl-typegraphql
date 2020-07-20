@@ -35,6 +35,16 @@ export class SeasonResolver {
         return await Season.createSeason(participantIds);
     }
 
+    @Mutation(() => Season)
+    async finishSeason(@Arg("id", () => ID) id: number) {
+        const season = await Season.findOne(id);
+        if (!season) {
+            throw new Error("Season not found");
+        }
+
+        return await season.finish();
+    }
+
     @FieldResolver()
     async players(@Root() parent: Season): Promise<Player[]> {
         return await parent.players;

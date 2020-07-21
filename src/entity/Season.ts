@@ -5,9 +5,7 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
-    ManyToMany,
     OneToMany,
-    JoinTable,
 } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 import { EntityState } from "../enums/EntityState";
@@ -76,6 +74,23 @@ export class Season extends BaseEntity {
         const sps = await this.seasonPlayerScores;
 
         return Promise.all(sps.map(sps => sps.player));
+    }
+
+    async increasePlayerScore(player: Player, delta: number): Promise<void> {
+        const result = await SeasonPlayerScore.createQueryBuilder()
+            .update()
+            .set({
+                score: () => `score + ${delta}`,
+            })
+            .where("playerId = :playerId and seasonId = :seasonId", {
+                playerId: player.id,
+                seasonId: this.id,
+            })
+            .execute();
+
+        if (result.affected !== 1) {
+            throw new Error("SeasonPlayerScore not found");
+        }
     }
 
     async finish(): Promise<Season> {

@@ -12,7 +12,12 @@ import {
 import { Player } from "./Player";
 import { Match } from "./Match";
 import { Season } from "./Season";
-import { EntityState } from "../enums/EntityState";
+import { seasonScorePerPlace } from "../utils/seasonScorePerPlace";
+
+type ScoreResult = {
+    player: Player;
+    score: number;
+};
 
 @ObjectType()
 @Entity()
@@ -104,8 +109,83 @@ export class Tournament extends BaseEntity {
 
     async finish(): Promise<Tournament> {
         this.isFinished = true;
+        await this.save();
 
-        return await this.save();
+        // add season points
+        const season = await this.season;
+        const results = await this.getScoreTable();
+        for (let i = 0; i < results.length; i++) {
+            const pointsIncrease = seasonScorePerPlace(i + 1);
+            if (pointsIncrease <= 0) {
+                break;
+            }
+
+            season.increasePlayerScore(results[i].player, pointsIncrease);
+        }
+
+        return this;
+    }
+
+    async getScoreTable(): Promise<ScoreResult[]> {
+        const matches = await this.matches;
+        const players = await (await this.season).getPlayers();
+
+        // initialize temporary object with scores
+        const scores = players.reduce(
+            (prev, curr) => ({
+                ...prev,
+                [curr.id]: 0,
+            }),
+            {}
+        );
+
+        // preload winner and loser of each match (required for sorting)
+        const preloadedMatchWinnersAndLosers: {
+            winner: Player;
+            loser: Player;
+        }[] = [];
+        for (const match of matches) {
+            preloadedMatchWinnersAndLosers.push({
+                winner: await match.winner,
+                loser: await match.loser,
+            });
+        }
+
+        // increment player's score for each win
+        for (const preloaded of preloadedMatchWinnersAndLosers) {
+            scores[preloaded.winner.id]++;
+        }
+
+        // compare based on score; if score of both players is equal, better is one who won direct match
+        const compare = (a: ScoreResult, b: ScoreResult) => {
+            if (b.score === a.score) {
+                for (const preloaded of preloadedMatchWinnersAndLosers) {
+                    if (
+                        a.player.id === preloaded.winner.id &&
+                        b.player.id === preloaded.loser.id
+                    ) {
+                        return -1;
+                    }
+                    if (
+                        b.player.id === preloaded.winner.id &&
+                        a.player.id === preloaded.loser.id
+                    ) {
+                        return 1;
+                    }
+                }
+            }
+
+            return b.score - a.score;
+        };
+
+        const scoreTable: ScoreResult[] = players
+            .map(player => ({
+                player,
+                score: scores[player.id],
+            }))
+            .sort((a, b) => compare(a, b));
+
+        return scoreTable;
     }
 
     async submitFinishedMatch() {

@@ -82,7 +82,7 @@ export class Season extends BaseEntity {
             .set({
                 score: () => `score + ${delta}`,
             })
-            .where("playerId = :playerId and seasonId = :seasonId", {
+            .where(`"playerId" = :playerId and "seasonId" = :seasonId`, {
                 playerId: player.id,
                 seasonId: this.id,
             })

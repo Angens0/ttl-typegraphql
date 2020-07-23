@@ -54,6 +54,10 @@ export class Season extends BaseEntity {
             throw new Error("Ongoing season found");
         }
 
+        if (participantIds.length < 2) {
+            throw new Error("Season needs to have at least 2 participants");
+        }
+
         const players = await Player.findByIds(participantIds);
         if (players.length !== participantIds.length) {
             throw new Error("Player not found");

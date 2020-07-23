@@ -9,12 +9,14 @@ import {
     PubSub,
     PubSubEngine,
     Subscription,
+    Authorized,
 } from "type-graphql";
 import { Match } from "../entity/Match";
 import { Player } from "../entity/Player";
 import { Point } from "../entity/Point";
 import { SubscriptionTopics } from "../enums/SubscriptionTopics";
 import { MatchPlayerScore } from "../entity/MatchPlayerScore";
+import { UserRole } from "../entity/User";
 
 @Resolver(() => Match)
 export class MatchResolver {
@@ -35,6 +37,7 @@ export class MatchResolver {
         return await Match.findOne(matchId);
     }
 
+    @Authorized([UserRole.ADMIN, UserRole.TABLE])
     @Mutation(() => Match)
     async startMatch(
         @Arg("matchId", () => ID) matchId: number,
@@ -52,6 +55,7 @@ export class MatchResolver {
         return match;
     }
 
+    @Authorized([UserRole.ADMIN, UserRole.TABLE])
     @Mutation(() => Point)
     async addPoint(
         @Arg("matchId", () => ID) matchId: number,
@@ -78,33 +82,33 @@ export class MatchResolver {
         return point;
     }
 
-    @Mutation(() => Match)
-    async createMatch(
-        @Arg("players", () => [ID]) data: string[],
-        @PubSub() pubSub: PubSubEngine
-    ) {
-        if (data.length !== 2) {
-            throw new Error("2 Players are needed to create match");
-        }
+    // @Mutation(() => Match)
+    // async createMatch(
+    //     @Arg("players", () => [ID]) data: string[],
+    //     @PubSub() pubSub: PubSubEngine
+    // ) {
+    //     if (data.length !== 2) {
+    //         throw new Error("2 Players are needed to create match");
+    //     }
 
-        const players: Player[] = [];
-        for (let id of data) {
-            const player = await Player.findOne(id);
-            if (!player) {
-                throw new Error("Player not found");
-            }
+    //     const players: Player[] = [];
+    //     for (let id of data) {
+    //         const player = await Player.findOne(id);
+    //         if (!player) {
+    //             throw new Error("Player not found");
+    //         }
 
-            players.push(player);
-        }
+    //         players.push(player);
+    //     }
 
-        const match = await Match.create({
-            players: Promise.resolve(players),
-        }).save();
+    //     const match = await Match.create({
+    //         players: Promise.resolve(players),
+    //     }).save();
 
-        await pubSub.publish(SubscriptionTopics.MATCH_UPDATE, match);
+    //     await pubSub.publish(SubscriptionTopics.MATCH_UPDATE, match);
 
-        return match;
-    }
+    //     return match;
+    // }
 
     @FieldResolver()
     async scores(@Root() parent: Match): Promise<MatchPlayerScore[]> {

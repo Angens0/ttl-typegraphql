@@ -8,12 +8,14 @@ import {
     ID,
     FieldResolver,
     Root,
+    Authorized,
 } from "type-graphql";
 import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
 import { Point } from "../entity/Point";
 import { Game } from "../entity/Game";
 import { SeasonPlayerScore } from "../entity/SeasonPlayerScore";
+import { UserRole } from "../entity/User";
 
 @InputType()
 class CreatePlayerInput {
@@ -39,6 +41,7 @@ export class PlayerResolver {
         return Player.findOne(id);
     }
 
+    @Authorized([UserRole.ADMIN])
     @Mutation(() => Player)
     createPlayer(@Arg("data") data: CreatePlayerInput): Promise<Player> {
         return Player.create(data).save();

@@ -10,12 +10,14 @@ import {
     Subscription,
     PubSub,
     PubSubEngine,
+    Authorized,
 } from "type-graphql";
 import { Player } from "../entity/Player";
 import { Match } from "../entity/Match";
 import { OrderOptions } from "../enums/OrderOptions";
 import { SubscriptionTopics } from "../enums/SubscriptionTopics";
 import { Season } from "../entity/Season";
+import { UserRole } from "../entity/User";
 
 @Resolver(() => Tournament)
 export class TournamentResolver {
@@ -51,6 +53,7 @@ export class TournamentResolver {
         return await Tournament.getActiveTournament();
     }
 
+    @Authorized([UserRole.ADMIN, UserRole.TABLE])
     @Mutation(() => Tournament)
     async createTournament(@PubSub() pubSub: PubSubEngine) {
         const tournament = await Tournament.createTournament();

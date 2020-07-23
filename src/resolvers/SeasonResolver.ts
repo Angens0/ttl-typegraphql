@@ -7,9 +7,11 @@ import {
     Root,
     Arg,
     ID,
+    Authorized,
 } from "type-graphql";
 import { Season } from "../entity/Season";
 import { SeasonPlayerScore } from "../entity/SeasonPlayerScore";
+import { UserRole } from "../entity/User";
 
 @Resolver(() => Season)
 export class SeasonResolver {
@@ -28,6 +30,7 @@ export class SeasonResolver {
         return season;
     }
 
+    @Authorized([UserRole.ADMIN])
     @Mutation(() => Season)
     async createSeason(
         @Arg("participantIds", () => [ID]) participantIds: number[]
@@ -35,6 +38,7 @@ export class SeasonResolver {
         return await Season.createSeason(participantIds);
     }
 
+    @Authorized([UserRole.ADMIN])
     @Mutation(() => Season)
     async finishSeason(@Arg("id", () => ID) id: number) {
         const season = await Season.findOne(id);

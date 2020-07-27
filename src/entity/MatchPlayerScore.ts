@@ -26,6 +26,10 @@ export class MatchPlayerScore extends BaseEntity {
     @Column("int", { default: 0 })
     gameWonCount: number;
 
+    @Field(() => Boolean)
+    @Column()
+    isServing: boolean;
+
     @Field(() => Player)
     @ManyToOne(() => Player)
     player: Promise<Player>;

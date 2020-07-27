@@ -51,6 +51,11 @@ export class PointResolver {
     // }
 
     @FieldResolver(() => Player)
+    async service(@Root() parent: Point): Promise<Player> {
+        return await parent.service;
+    }
+
+    @FieldResolver(() => Player)
     async winner(@Root() parent: Point): Promise<Player> {
         return await parent.winner;
     }

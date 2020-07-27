@@ -43,6 +43,10 @@ export class Player extends BaseEntity {
     matches: Promise<Match[]>;
 
     @Field(() => [Point])
+    @OneToMany(() => Point, point => point.service)
+    services: Promise<Point[]>;
+
+    @Field(() => [Point])
     @OneToMany(() => Point, point => point.winner)
     wonPoints: Promise<Point[]>;
 

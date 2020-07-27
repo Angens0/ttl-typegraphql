@@ -13,6 +13,7 @@ import { Game } from "./Game";
 import { Tournament } from "./Tournament";
 import { Point } from "./Point";
 import { MatchPlayerScore } from "./MatchPlayerScore";
+import { randomInt } from "../utils/randomInt";
 
 const MIN_POINTS_WIN_GAME = 11;
 const MIN_POINTS_DIFF_WIN_GAME = 2;
@@ -69,12 +70,21 @@ export class Match extends BaseEntity {
         tournament: Tournament
     ): Promise<Match> {
         const match = await Match.create({}).save();
+
+        const switchSides = !!randomInt(0, 1);
+        if (switchSides) {
+            [players[0], players[1]] = [players[1], players[0]];
+        }
+
         match.players = Promise.resolve(players);
         match.tournament = Promise.resolve(tournament);
 
-        for (const player of players) {
+        const toServe = randomInt(0, 1);
+
+        for (let i = 0; i < players.length; i++) {
             const mps = new MatchPlayerScore();
-            mps.player = Promise.resolve(player);
+            mps.isServing = i === toServe;
+            mps.player = Promise.resolve(players[i]);
             mps.match = Promise.resolve(match);
             await mps.save();
         }
@@ -83,6 +93,10 @@ export class Match extends BaseEntity {
     }
 
     async start(): Promise<Match> {
+        if (this.isStarted) {
+            throw new Error("Match already started");
+        }
+
         this.isStarted = true;
         await Game.createGame(this);
         await this.save();
@@ -120,7 +134,6 @@ export class Match extends BaseEntity {
         const game = await this.getActiveGame();
         const players = await this.players;
         const loser = players.find(player => player.id !== winner.id);
-        const point = await Point.createPoint(winner, loser, game);
 
         let winnerScore: MatchPlayerScore;
         let loserScore: MatchPlayerScore;
@@ -132,9 +145,16 @@ export class Match extends BaseEntity {
                 : (loserScore = score);
         }
 
+        const point = await Point.createPoint(
+            winnerScore.isServing ? winner : loser,
+            winner,
+            loser,
+            game
+        );
         winnerScore.pointWonCount++;
         await winnerScore.save();
 
+        // finish game if conditions are met
         if (
             winnerScore.pointWonCount >= MIN_POINTS_WIN_GAME &&
             winnerScore.pointWonCount - loserScore.pointWonCount >=
@@ -144,6 +164,7 @@ export class Match extends BaseEntity {
             winnerScore.gameWonCount++;
             await winnerScore.save();
 
+            // finish match if conditions are met, create new game otherwise
             const gamesToWinMatch = Math.ceil(MATCH_BEST_OF / 2);
             if (winnerScore.gameWonCount >= gamesToWinMatch) {
                 this.finish(winner, loser);
@@ -153,6 +174,26 @@ export class Match extends BaseEntity {
                 loserScore.pointWonCount = 0;
                 await loserScore.save();
                 await Game.createGame(this);
+
+                // service when new game starts
+                const prevGamePoints = await game.points;
+                const prevPointZeroService = await prevGamePoints[0].service;
+                for (const score of scores) {
+                    score.isServing =
+                        (await score.player).id !== prevPointZeroService.id;
+                    await score.save();
+                }
+            }
+        } else {
+            // service when game continues
+            const sumOfPoints =
+                winnerScore.pointWonCount + loserScore.pointWonCount;
+            if (sumOfPoints > 20 || sumOfPoints % 2 === 0) {
+                // switch service
+                for (const score of scores) {
+                    score.isServing = !score.isServing;
+                    await score.save();
+                }
             }
         }
 

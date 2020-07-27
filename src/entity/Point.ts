@@ -26,6 +26,10 @@ export class Point extends BaseEntity {
     // winnerId: number;
 
     @Field(() => Player)
+    @ManyToOne(() => Player, player => player.services)
+    service: Promise<Player>;
+
+    @Field(() => Player)
     @ManyToOne(() => Player, player => player.wonPoints)
     winner: Promise<Player>;
 
@@ -45,11 +49,13 @@ export class Point extends BaseEntity {
     updatedAt: Date;
 
     static async createPoint(
+        service: Player,
         winner: Player,
         loser: Player,
         game: Game
     ): Promise<Point> {
         const point = await Point.create({}).save();
+        point.service = Promise.resolve(service);
         point.winner = Promise.resolve(winner);
         point.loser = Promise.resolve(loser);
         point.game = Promise.resolve(game);

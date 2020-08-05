@@ -59,11 +59,12 @@ export class MatchResolver {
         return match;
     }
 
-    @Authorized([UserRole.ADMIN, UserRole.TABLE])
+    @Authorized([UserRole.TABLE])
     @Mutation(() => Point)
     async addPoint(
         @Arg("matchId", () => ID) matchId: number,
         @Arg("winnerId", () => ID) winnerId: number,
+        @Ctx() ctx: Context,
         @PubSub() pubSub: PubSubEngine
     ): Promise<Point> {
         winnerId = Number(winnerId);
@@ -79,7 +80,8 @@ export class MatchResolver {
             throw new Error("Player not found");
         }
 
-        const point = await match.addPoint(winner);
+        const user = await User.findOne(ctx.user.id);
+        const point = await match.addPoint(winner, user);
 
         await pubSub.publish(SubscriptionTopics.MATCH_UPDATE, match);
 

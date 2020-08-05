@@ -132,13 +132,17 @@ export class Match extends BaseEntity {
         return this;
     }
 
-    async addPoint(winner: Player): Promise<Point> {
+    async addPoint(winner: Player, table: User): Promise<Point> {
         if (!this.isStarted) {
             throw new Error("The Match is not started");
         }
 
         if (this.isFinished) {
             throw new Error("The Match is finished");
+        }
+
+        if (table.id !== (await this.table).id) {
+            throw new Error("Wrong table");
         }
 
         const game = await this.getActiveGame();

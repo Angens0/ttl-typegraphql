@@ -14,6 +14,7 @@ import { Tournament } from "./Tournament";
 import { Point } from "./Point";
 import { MatchPlayerScore } from "./MatchPlayerScore";
 import { randomInt } from "../utils/randomInt";
+import { User } from "./User";
 
 const MIN_POINTS_WIN_GAME = 11;
 const MIN_POINTS_DIFF_WIN_GAME = 2;
@@ -44,6 +45,10 @@ export class Match extends BaseEntity {
         matchPlayerScore => matchPlayerScore.match
     )
     scores: Promise<MatchPlayerScore[]>;
+
+    @Field(() => User, { nullable: true })
+    @ManyToOne(() => User, user => user.matches)
+    table: Promise<User>;
 
     @Field(() => Player, { nullable: true })
     @ManyToOne(() => Player)
@@ -92,12 +97,17 @@ export class Match extends BaseEntity {
         return await match.save();
     }
 
-    async start(): Promise<Match> {
+    async start(table: User): Promise<Match> {
         if (this.isStarted) {
             throw new Error("Match already started");
         }
 
+        if (!table.isTable()) {
+            throw new Error("Table not found");
+        }
+
         this.isStarted = true;
+        this.table = Promise.resolve(table);
         await Game.createGame(this);
         await this.save();
 

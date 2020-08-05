@@ -10,13 +10,15 @@ import {
     PubSubEngine,
     Subscription,
     Authorized,
+    Ctx,
 } from "type-graphql";
 import { Match } from "../entity/Match";
 import { Player } from "../entity/Player";
 import { Point } from "../entity/Point";
 import { SubscriptionTopics } from "../enums/SubscriptionTopics";
 import { MatchPlayerScore } from "../entity/MatchPlayerScore";
-import { UserRole } from "../entity/User";
+import { UserRole, User } from "../entity/User";
+import { Context } from "vm";
 
 @Resolver(() => Match)
 export class MatchResolver {
@@ -41,6 +43,7 @@ export class MatchResolver {
     @Mutation(() => Match)
     async startMatch(
         @Arg("matchId", () => ID) matchId: number,
+        @Ctx() ctx: Context,
         @PubSub() pubSub: PubSubEngine
     ): Promise<Match> {
         const match = await Match.findOne(matchId);
@@ -48,7 +51,8 @@ export class MatchResolver {
             throw new Error("Match not found");
         }
 
-        await match.start();
+        const user = await User.findOne(ctx.user.id);
+        await match.start(user);
 
         await pubSub.publish(SubscriptionTopics.MATCH_UPDATE, match);
 
@@ -113,6 +117,11 @@ export class MatchResolver {
     @FieldResolver()
     async scores(@Root() parent: Match): Promise<MatchPlayerScore[]> {
         return await parent.scores;
+    }
+
+    @FieldResolver()
+    async table(@Root() parent: Match): Promise<User> {
+        return await parent.table;
     }
 
     @FieldResolver()

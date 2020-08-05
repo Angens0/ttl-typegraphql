@@ -5,8 +5,10 @@ import {
     BaseEntity,
     CreateDateColumn,
     UpdateDateColumn,
+    OneToMany,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
+import { Match } from "./Match";
 
 export enum UserRole {
     ADMIN = "admin",
@@ -35,6 +37,10 @@ export class User extends BaseEntity {
     })
     role: UserRole;
 
+    @Field(() => [Match])
+    @OneToMany(() => Match, match => match.table)
+    matches: Promise<Match[]>;
+
     @Field()
     @CreateDateColumn()
     createdAt: Date;
@@ -42,4 +48,8 @@ export class User extends BaseEntity {
     @Field()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    isTable(): boolean {
+        return this.role === UserRole.TABLE;
+    }
 }

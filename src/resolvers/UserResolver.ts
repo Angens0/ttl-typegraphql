@@ -6,10 +6,13 @@ import {
     Mutation,
     Arg,
     Authorized,
+    FieldResolver,
+    Root,
 } from "type-graphql";
 import { User, UserRole } from "../entity/User";
 import { hash, compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
+import { Match } from "../entity/Match";
 
 @InputType()
 class CreateUserInput {
@@ -23,7 +26,7 @@ class CreateUserInput {
     role: UserRole;
 }
 
-@Resolver()
+@Resolver(() => User)
 export class UserResolver {
     @Authorized([UserRole.ADMIN, UserRole.TABLE])
     @Query(() => [User])
@@ -65,5 +68,10 @@ export class UserResolver {
         );
 
         return token;
+    }
+
+    @FieldResolver()
+    async matches(@Root() parent: User): Promise<Match[]> {
+        return await parent.matches;
     }
 }

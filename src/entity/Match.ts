@@ -214,7 +214,9 @@ export class Match extends BaseEntity {
     async matchScore(): Promise<{ [playerId: string]: number }> {
         const players = await this.players;
         const games = await this.games;
-        const finishedGames = games.filter(game => game.isFinished);
+        const finishedGames = games.filter(
+            game => game.state === EntityState.FINISHED
+        );
 
         const score = {};
         score[players[0].id] = 0;
@@ -234,7 +236,9 @@ export class Match extends BaseEntity {
 
     async getActiveGame(): Promise<Game> {
         const games = await this.games;
-        const activeGame = games.find(game => !game.isFinished);
+        const activeGame = games.find(
+            game => game.state == EntityState.ONGOING
+        );
         if (!activeGame) {
             throw new Error("Game not found");
         }

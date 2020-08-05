@@ -15,6 +15,7 @@ import { Point } from "./Point";
 import { MatchPlayerScore } from "./MatchPlayerScore";
 import { randomInt } from "../utils/randomInt";
 import { User } from "./User";
+import { EntityState } from "../enums/EntityState";
 
 const MIN_POINTS_WIN_GAME = 11;
 const MIN_POINTS_DIFF_WIN_GAME = 2;
@@ -28,12 +29,8 @@ export class Match extends BaseEntity {
     id: number;
 
     @Field()
-    @Column({ default: false })
-    isStarted: boolean;
-
-    @Field()
-    @Column({ default: false })
-    isFinished: boolean;
+    @Column({ default: EntityState.NOT_STARTED })
+    state: EntityState;
 
     @Field()
     @Column({ default: false })
@@ -98,7 +95,7 @@ export class Match extends BaseEntity {
     }
 
     async start(table: User): Promise<Match> {
-        if (this.isStarted) {
+        if (this.state !== EntityState.NOT_STARTED) {
             throw new Error("Match already started");
         }
 
@@ -106,7 +103,7 @@ export class Match extends BaseEntity {
             throw new Error("Table not found");
         }
 
-        this.isStarted = true;
+        this.state = EntityState.ONGOING;
         this.table = Promise.resolve(table);
         await Game.createGame(this);
         await this.save();
@@ -119,7 +116,7 @@ export class Match extends BaseEntity {
         loser: Player,
         isWalkover = false
     ): Promise<Match> {
-        this.isFinished = true;
+        this.state = EntityState.FINISHED;
         this.isWalkover = isWalkover;
         this.winner = Promise.resolve(winner);
         this.loser = Promise.resolve(loser);
@@ -133,12 +130,8 @@ export class Match extends BaseEntity {
     }
 
     async addPoint(winner: Player, table: User): Promise<Point> {
-        if (!this.isStarted) {
+        if (this.state !== EntityState.ONGOING) {
             throw new Error("The Match is not started");
-        }
-
-        if (this.isFinished) {
-            throw new Error("The Match is finished");
         }
 
         if (table.id !== (await this.table).id) {

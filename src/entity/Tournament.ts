@@ -13,6 +13,7 @@ import { Player } from "./Player";
 import { Match } from "./Match";
 import { Season } from "./Season";
 import { seasonScorePerPlace } from "../utils/seasonScorePerPlace";
+import { EntityState } from "../enums/EntityState";
 
 type ScoreResult = {
     player: Player;
@@ -190,7 +191,7 @@ export class Tournament extends BaseEntity {
 
     async submitFinishedMatch() {
         const matches = await this.matches;
-        if (matches.every(match => match.isFinished)) {
+        if (matches.every(match => match.state === EntityState.FINISHED)) {
             await this.finish();
         }
     }

@@ -99,7 +99,11 @@ export class Season extends BaseEntity {
 
     async finish(): Promise<Season> {
         const tournaments = await this.tournaments;
-        if (tournaments.some(tournament => !tournament.isFinished)) {
+        if (
+            tournaments.some(
+                tournament => tournament.state !== EntityState.FINISHED
+            )
+        ) {
             throw new Error("Tournament not finished");
         }
 

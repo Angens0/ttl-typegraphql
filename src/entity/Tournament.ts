@@ -28,12 +28,8 @@ export class Tournament extends BaseEntity {
     id: number;
 
     @Field()
-    @Column({ default: true })
-    isStarted: boolean;
-
-    @Field()
-    @Column({ default: false })
-    isFinished: boolean;
+    @Column({ default: EntityState.NOT_STARTED })
+    state: EntityState;
 
     @Field(() => Season)
     @ManyToOne(() => Season, season => season.tournaments)
@@ -53,8 +49,7 @@ export class Tournament extends BaseEntity {
 
     static async getActiveTournament(): Promise<Tournament> | null {
         const tournament = await Tournament.findOne({
-            isStarted: false,
-            isFinished: false,
+            state: EntityState.ONGOING,
         });
         if (!tournament) {
             return null;
@@ -103,13 +98,13 @@ export class Tournament extends BaseEntity {
     }
 
     async start(): Promise<Tournament> {
-        this.isStarted = true;
+        this.state = EntityState.ONGOING;
 
         return await this.save();
     }
 
     async finish(): Promise<Tournament> {
-        this.isFinished = true;
+        this.state = EntityState.FINISHED;
         await this.save();
 
         // add season points

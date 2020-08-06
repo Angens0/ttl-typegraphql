@@ -67,6 +67,17 @@ export class Match extends BaseEntity {
     @OneToMany(() => Game, game => game.match)
     games: Promise<Game[]>;
 
+    static async getOngoingMatches(): Promise<Match[]> {
+        // TypeORM replaces :state with "ognoing" instead of 'ongoing'
+        // https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS
+        return (
+            Match.createQueryBuilder("match")
+                // .where("match.state = :state", { state: EntityState.ONGOING })
+                .where(`match.state = '${EntityState.ONGOING}'`)
+                .getMany()
+        );
+    }
+
     static async createMatch(
         players: [Player, Player],
         tournament: Tournament

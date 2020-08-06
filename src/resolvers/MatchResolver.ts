@@ -34,6 +34,11 @@ export class MatchResolver {
         return await Match.find();
     }
 
+    @Query(() => [Match])
+    async ongoingMatches(): Promise<Match[]> {
+        return await Match.getOngoingMatches();
+    }
+
     @Query(() => Match, { nullable: true })
     async match(@Arg("matchId", () => ID) matchId: number): Promise<Match> {
         return await Match.findOne(matchId);

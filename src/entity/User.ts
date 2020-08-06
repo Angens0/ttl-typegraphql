@@ -52,4 +52,20 @@ export class User extends BaseEntity {
     isTable(): boolean {
         return this.role === UserRole.TABLE;
     }
+
+    async getOgnoingMatch(): Promise<Match> | null {
+        if (!this.isTable()) {
+            throw new Error("Table not found");
+        }
+
+        const matches = await Match.getOngoingMatches();
+        for (let i = 0; i < matches.length; i++) {
+            const table = await matches[i].table;
+            if (table.id === this.id) {
+                return matches[i];
+            }
+        }
+
+        return null;
+    }
 }

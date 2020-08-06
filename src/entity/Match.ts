@@ -114,6 +114,10 @@ export class Match extends BaseEntity {
             throw new Error("Table not found");
         }
 
+        if (await table.getOgnoingMatch()) {
+            throw new Error("Table occupied");
+        }
+
         this.state = EntityState.ONGOING;
         this.table = Promise.resolve(table);
         await Game.createGame(this);

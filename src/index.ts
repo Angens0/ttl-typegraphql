@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { EventEmitter } from "events";
 import { ApolloServer } from "apollo-server-express";
 import * as http from "http";
 import * as express from "express";
@@ -17,6 +18,10 @@ import { UserRole, User } from "./entity/User";
 import { customAuthChecker } from "./auth/customAuthChecker";
 import { EntityState } from "./enums/EntityState";
 import { SeasonResolver } from "./resolvers/SeasonResolver";
+
+// TODO: test (react + apolllo DEV(?))
+// https://stackoverflow.com/questions/8313628/node-js-request-how-to-emitter-setmaxlisteners
+EventEmitter.defaultMaxListeners = 100;
 
 const PORT = process.env.PORT || 7000;
 
